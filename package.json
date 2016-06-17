@@ -13,6 +13,7 @@
 	"author": "Cris Ryan Tan",
 	"license": "MIT",
 	"dependencies": {
+		"botkit": "^0.2.1",
 		"hapi": "^13.4.1"
 	}
 }
