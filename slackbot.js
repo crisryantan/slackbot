@@ -6,6 +6,7 @@ const controller = Botkit.slackbot( {
 	debug: false
 } );
 
+const JokeApi  = require( './components/jokes.js' );
 
 var Slackbot = {
 	'run': run
@@ -18,7 +19,12 @@ function run () {
 		if ( err ) {
 			throw new Error( 'Could not connect to Slack' );
 		}
-		// should listen to events here..
+		// For reference: https://github.com/howdyai/botkit/blob/master/readme-slack.md#message-received-events
+		controller.hears( [ 'tell a joke' ], 'direct_mention,ambient', function( bot, message ) {
+			JokeApi.getJoke().then( function ( joke ) {
+				bot.reply( message, joke );
+			} );
+		} );
 	} );
 }
 
