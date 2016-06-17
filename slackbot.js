@@ -1,7 +1,6 @@
 'use strict';
 
-// temporary, just testing it out on my own slack
-const token      = 'xoxb-50795597252-JqacfyYQVMJ1hqj2ASODm4s5' || '';
+const token      = process.env.slacktoken || '';
 const Botkit     = require( 'botkit' );
 const controller = Botkit.slackbot( {
 	debug: false
