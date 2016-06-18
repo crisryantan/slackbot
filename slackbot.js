@@ -10,6 +10,13 @@ const controller = Botkit.slackbot( {
 const JokeApi       = require( './components/jokes.js' );
 const ChuckApi      = require( './components/chuck.js' );
 const DefinitionApi = require( './components/definition.js' );
+const IsDownApi     = require( './components/isdown.js' );
+
+// http://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url/3809435#3809435
+var urlRegex       = /[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&/ /= ]*)/;
+// just referencing this regex http://codegolf.stackexchange.com/a/479 and added "is" and "down" to the pattern
+// weird that /(is\s*([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&/ /= ]*))\sdown?)/ does not work but works on regex101 so i'll use this instead
+var urlRegexString = /(is\s*(.+\.\w\w.*)\sdown?)/;
 
 var Slackbot = {
 	'run': run
@@ -31,6 +38,7 @@ function listenToEvents () {
 	jokeEvent();
 	chuckNorrisEvent();
 	defineQuestionEvent();
+	isWebsiteDownEvent();
 }
 
 function jokeEvent () {
@@ -53,6 +61,15 @@ function defineQuestionEvent () {
 	controller.hears( [ /what is [a-z]+(?: [a-z]+)*\?/ ], 'direct_mention,ambient', function( bot, message ) {
 		DefinitionApi.getDefinition( message.text ).then( function ( definition ) {
 			bot.reply( message, definition );
+		} );
+	} );
+}
+
+function isWebsiteDownEvent () {
+	controller.hears( [ urlRegexString ], 'direct_mention,ambient', function( bot, message ) {
+		var userUrl = urlRegex.exec( message.text )
+		IsDownApi.testWebsite( userUrl[ 0 ] ).then( function ( report ) {
+			bot.reply( message, report );
 		} );
 	} );
 }
