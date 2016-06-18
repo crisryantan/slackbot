@@ -12,10 +12,9 @@ const ChuckApi      = require( './components/chuck.js' );
 const DefinitionApi = require( './components/definition.js' );
 const IsDownApi     = require( './components/isdown.js' );
 
-// http://stackoverflow.com/questions/3809401/what-is-a-good-regular-expression-to-match-a-url/3809435#3809435
-var urlRegex       = /[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&/ /= ]*)/;
-// just referencing this regex http://codegolf.stackexchange.com/a/479 and added "is" and "down" to the pattern
-// weird that /(is\s*([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&/ /= ]*))\sdown?)/ does not work but works on regex101 so i'll use this instead
+const http = require( 'http' );
+
+var urlRegex       = new RegExp( /([-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6})\b([-a-zA-Z0-9@:%_\+.~#?&\/=]*)/);
 var urlRegexString = /(is\s*(.+\.\w\w.*)\sdown?)/;
 
 var Slackbot = {
@@ -24,7 +23,7 @@ var Slackbot = {
 
 function run () {
 	controller.spawn( {
-		'token': token,
+		'token': token
 	} ).startRTM( function ( err ) {
 		if ( err ) {
 			throw new Error( 'Could not connect to Slack' );
@@ -67,10 +66,22 @@ function defineQuestionEvent () {
 
 function isWebsiteDownEvent () {
 	controller.hears( [ urlRegexString ], 'direct_mention,ambient', function( bot, message ) {
-		var userUrl = urlRegex.exec( message.text )
-		IsDownApi.testWebsite( userUrl[ 0 ] ).then( function ( report ) {
-			bot.reply( message, report );
+		var userMsg      = message.text;
+		var userUrl      = urlRegex.exec( message.text )[ 0 ];
+		var userUrlQuery = 'http://www.' + userUrl;
+		http.get( userUrlQuery, function () {
+			bot.reply( message, userUrl + ' is up.' );
+		} ).on( 'error', function () {
+			bot.reply( message, userUrl + ' is down.' );
 		} );
+
+		// sadly this is only working in local, could have return response time. I have an unknown defect
+		// when integrating with heroku where it shut downs the bot when method is called
+		/*
+		 IsDownApi.testWebsite( userUrl[ 0 ] ).then( function ( report ) {
+		 	bot.reply( message, report );
+		 } );
+		*/
 	} );
 }
 

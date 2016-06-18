@@ -3,8 +3,11 @@
 const PingClass = require( 'ping-lite' );
 
 const IsDown = {
-	'testWebsite' : testWebsite
+	'testWebsite': testWebsite
 };
+
+// sadly this is only working in local, it could have return response time. I have an unknown defect
+// when integrating with heroku where it shut downs the bot when method is called
 
 function testWebsite ( URL ) {
 	var ping = new PingClass( URL );
@@ -14,7 +17,11 @@ function testWebsite ( URL ) {
 			if ( err ) {
 				return reject( err );
 			}
-			return resolve( URL + ' is up, responded in: ' + ms + ' ms.' );
+			if ( ms ) {
+				return resolve( URL + ' is up, responded in: ' + ms + ' ms.' );
+			}
+
+			return resolve( URL + ' is up.' );
 		} );
 	} );
 }

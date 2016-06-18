@@ -12,7 +12,9 @@ My data interpretation on using wolfram-alpha library
 	search results.
 ***/
 
-const wolfram    = require( 'wolfram-alpha' ).createClient( 'L6Y49H-Q8P4JQPQYU' );
+const wolframtoken = process.env.wolframtoken || '';
+
+const wolfram    = require( 'wolfram-alpha' ).createClient( wolframtoken );
 const Definition = {
 	'getDefinition' : getDefinition
 };
